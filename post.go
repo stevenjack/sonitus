@@ -74,7 +74,7 @@ func main() {
 	url := os.Args[1]
 
 	messageName := fmt.Sprintf("{\"title\":\"Alarm\",\"value\":\" %s\",\"short\":true}", AwsBody.AlarmName)
-	messageLink := fmt.Sprintf("{\"title\":\"Client\",\"value\":\" <https://eu-west-1.console.aws.amazon.com/cloudwatch/home?region=eu-west-1#alarm:alarmFilter=ANY;name= %s|AWS Console>\",\"short\":true}", AwsBody.AlarmName)
+	messageLink := fmt.Sprintf("{\"title\":\"Client\",\"value\":\" <https://eu-west-1.console.aws.amazon.com/cloudwatch/home#alarm:alarmFilter=ANY;name= %s|AWS Console>\",\"short\":true}", AwsBody.AlarmName)
 	messageDesc := fmt.Sprintf("{\"title\":\"Description\",\"value\":\" %s\",\"short\":true}", AwsBody.NewStateReason)
 	messageTime := fmt.Sprintf("{\"title\":\"Alert Time\",\"value\":\" %s\",\"short\":true}", AwsBody.StateChangeTime)
 
