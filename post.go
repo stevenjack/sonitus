@@ -84,11 +84,13 @@ func alarm(awsBody *MessageBody) {
 
 	var checkStatus []byte
 
+	alarmOldState := "INSUFFICIENT_DATA"
 	alarmState := awsBody.NewStateValue
-	if alarmState == "ALARM" {
+
+	if alarmState == "ALARM" && awsBody.OldStateValue != alarmOldState {
 		checkStatus = slack(awsBody, alarmState, "#F35A00")
 		send(checkStatus)
-	} else if alarmState == "OK" {
+	} else if alarmState == "OK" && awsBody.OldStateValue != alarmOldState {
 		checkStatus = slack(awsBody, alarmState, "#2ecc71")
 		send(checkStatus)
 	} else {
@@ -146,7 +148,7 @@ func slack(awsBody *MessageBody, alarmState string, colour string) []byte {
 		panic(err)
 	}
 
-	var jsonStr = []byte(fmt.Sprintf("{\"username\": \"Cloudwatch\",\"attachments\":[{\"fallback\":\"AWS Alert\"},{\"fields\":[ %s, %s, %s, %s],\"color\": \"%s\"}]}", messageName, messageLink, messageDesc, messageTime, colour))
+	var jsonStr = []byte(fmt.Sprintf("{\"username\": \"CW - %s \",\"attachments\":[{\"fallback\":\"AWS Alert\"},{\"fields\":[ %s, %s, %s, %s],\"color\": \"%s\"}]}", awsBody.AlarmName, messageName, messageLink, messageDesc, messageTime, colour))
 
 	return jsonStr
 
