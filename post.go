@@ -84,13 +84,12 @@ func alarm(awsBody *MessageBody) {
 
 	var checkStatus []byte
 
-	alarmOldState := "INSUFFICIENT_DATA"
 	alarmState := awsBody.NewStateValue
 
-	if alarmState == "ALARM" && awsBody.OldStateValue != alarmOldState {
+	if alarmState == "ALARM" {
 		checkStatus = slack(awsBody, alarmState, "#F35A00")
 		send(checkStatus)
-	} else if alarmState == "OK" && awsBody.OldStateValue != alarmOldState {
+	} else if alarmState == "OK" && awsBody.OldStateValue != "INSUFFICIENT_DATA" {
 		checkStatus = slack(awsBody, alarmState, "#2ecc71")
 		send(checkStatus)
 	} else {
