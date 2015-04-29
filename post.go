@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type Message struct {
@@ -99,10 +100,12 @@ func alarm(awsBody *MessageBody) {
 
 func slack(awsBody *MessageBody, alarmState string, colour string) []byte {
 
+	formattedAlarm := buildAlarmFields(awsBody.AlarmName)
+
 	alarmMessageName := &payloadMessage{
 		Short: true,
 		Title: alarmState,
-		Value: awsBody.AlarmName,
+		Value: formattedAlarm,
 	}
 
 	messageName, err := json.Marshal(alarmMessageName)
@@ -147,9 +150,19 @@ func slack(awsBody *MessageBody, alarmState string, colour string) []byte {
 		panic(err)
 	}
 
-	var jsonStr = []byte(fmt.Sprintf("{\"username\": \"CW - %s \",\"attachments\":[{\"fallback\":\"AWS Alert\"},{\"fields\":[ %s, %s, %s, %s],\"color\": \"%s\"}]}", awsBody.AlarmName, messageName, messageLink, messageDesc, messageTime, colour))
-
+	fmt.Println(fmt.Sprintf("{\"username\": \"CW - %s \",\"attachments\":[{\"fallback\":\"AWS Alert\"},{\"fields\":[ %s, %s, %s, %s],\"color\": \"%s\"}, \"mrkdwn_in\": [\"%s\"]]}", awsBody.AlarmName, messageName, messageLink, messageDesc, messageTime, colour, alarmState))
+	var jsonStr = []byte(fmt.Sprintf("{\"username\": \"CW - %s \",\"attachments\":[{\"fallback\":\"AWS Alert\"},{\"fields\":[ %s, %s, %s, %s],\"color\": \"%s\", \"mrkdwn_in\": [\"fields\"]}]}", awsBody.AlarmName, messageName, messageLink, messageDesc, messageTime, colour))
 	return jsonStr
+
+}
+
+func buildAlarmFields(alarmName string) string {
+
+	alarmFields := strings.Split(alarmName, "-")
+
+	alarm := fmt.Sprintf("*Env*: %s \n *Component*: %s-%s  \n *Stack*: %s \n *Metric*: %s \n *Hash*: %s \n", alarmFields[0], alarmFields[1], alarmFields[2], alarmFields[3], alarmFields[4], alarmFields[5])
+
+	return alarm
 
 }
 
